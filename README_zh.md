@@ -159,16 +159,13 @@ output:
     }
 }
 """
-
-
-
 ```
 
 ## print_module_key_test.py 代码如下
 ```python
 import torch,time
 
-from test_model import  TestModel
+from test.test_model import  TestModel
 from sampler_mopilot import SamplerMopilot
 import threading
 
