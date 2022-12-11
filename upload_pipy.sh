@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 ####
-### This is Test version
+## This is Test version
+## release version is https://pypi.org
 ####
 rm -rf build
 rm -rf dist

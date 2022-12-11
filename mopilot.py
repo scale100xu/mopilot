@@ -156,7 +156,7 @@ class Mopilot:
             if path_key == module_path_key or module_path_key==self.ALL:
                 module = self.model_path_key[path_key]
                 removableHandle = module.register_forward_hook(hook)
-                self.model_path_register_forward_pre_hook[path_key] = removableHandle
+                self.model_path_register_forward_hook[path_key] = removableHandle
                 is_finded = True
                 if module_path_key!=self.ALL:
                    break
