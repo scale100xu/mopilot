@@ -6,6 +6,7 @@ import torch
 from functools import reduce
 import json
 
+
 _grad_t = Union[Tuple[torch.Tensor, ...], torch.Tensor]
 
 class StatTensor(object):
@@ -36,17 +37,6 @@ class StatTensor(object):
         return self.__str__()
 
     def __str__(self):
-        # class NpEncoder(json.JSONEncoder):
-        #     def default(self, obj):
-        #         if isinstance(obj, np.integer):
-        #             return int(obj)
-        #         if isinstance(obj, np.floating):
-        #             # 👇️ alternatively use str()
-        #             return float(obj)
-        #         if isinstance(obj, np.ndarray):
-        #             return obj.tolist()
-        #         return json.JSONEncoder.default(self, obj)
-
         return json.dumps(self.to_json())
 
     def to_json(self):

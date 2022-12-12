@@ -162,26 +162,27 @@ output:
 ```
 
 ## print_module_key_test.py 代码如下
-```python
-import torch,time
 
-from test.test_model import  TestModel
-from sampler_mopilot import SamplerMopilot
+```python
+import torch, time
+
+from test.test_model import TestModel
+from mopilot.sampler_mopilot import SamplerMopilot
 import threading
 
+
 class HttpThread(threading.Thread):
-    def __init__(self, sampler:SamplerMopilot):
+    def __init__(self, sampler: SamplerMopilot):
         threading.Thread.__init__(self)
         self.sampler = sampler
         self.threadLock = threading.Lock()
 
-
     def run(self) -> None:
         self.threadLock.acquire()
-        self.sampler.http_sampler_mopilot()
+        self.sampler.http_request()
+        self.sampler.run_http_server()
         print(f"test")
         self.threadLock.release()
-
 
 
 if __name__ == "__main__":
@@ -190,6 +191,8 @@ if __name__ == "__main__":
     m.train(True)
 
     http_sampler_mopilot = SamplerMopilot(m, "HttpSamplerMopilot")
+
+
     def todo_train():
         # todo your train code
         # path = "seq.0.Conv2d"
@@ -212,8 +215,6 @@ if __name__ == "__main__":
     http.daemon = True
     http.start()
     todo_train()
-
-
 
 """
 # add grad sample

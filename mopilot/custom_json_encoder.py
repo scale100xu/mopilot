@@ -1,5 +1,5 @@
 from json import JSONEncoder
-from mopilot import StatTensor
+from . import StatTensor
 import torch
 import json
 

@@ -1,16 +1,16 @@
 import torch.nn
 
 from . import Mopilot,StatTensor
-from collections import OrderedDict, namedtuple
-from typing import Union, Tuple, Any, Callable, Iterator, Set, Optional, overload, TypeVar, Mapping, Dict, List
-from . import VERSION
+from collections import OrderedDict
+from typing import Any, Dict
+import mopilot
 import json
 import uvicorn
 from asyncer import asyncify
-from fastapi import Depends, FastAPI, File, Form, Query
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse,Response
-from custom_json_encoder import MySelfJSONEncoder
+from mopilot.custom_json_encoder import MySelfJSONEncoder
 
 class SamplerMopilot(Mopilot):
     def __init__(self, model, name):
@@ -110,7 +110,7 @@ class SamplerMopilot(Mopilot):
         input_output = self.sampler_hook_forward_dict[module_path_key]
         return self.stat_tensor(input_output["outputs"])
 
-    def http_sampler_mopilot(self, host:str="0.0.0.0", port:int=8765, log_level: str="debug", threads:int=None)->None:
+    def http_request(self, threads:int=None)->None:
         tags_metadata = [
             {
                 "name": "Model Copilot for pytorch",
@@ -124,7 +124,7 @@ class SamplerMopilot(Mopilot):
         app = FastAPI(
             title="Mopilot",
             description="Model Copilot for pytorch",
-            version= VERSION,
+            version= mopilot.VERSION,
             contact={
                 "name": "fanghui xu",
                 "url": "https://github.com/scale100xu",
@@ -144,7 +144,7 @@ class SamplerMopilot(Mopilot):
             allow_headers=["*"],
         )
 
-
+        self.app = app
         def custom_json_encoder(data)->str:
             return json.dumps(data,cls=MySelfJSONEncoder)
 
@@ -317,8 +317,8 @@ class SamplerMopilot(Mopilot):
             return await asyncify(http_stat_sampler_hook_grad_output)(key)
 
 
-
-        uvicorn.run(app, host=host, port=port, log_level=log_level)
+    def run_http_server(self, host:str="0.0.0.0", port:int=8765, log_level: str="debug")->None:
+        uvicorn.run(self.app, host=host, port=port, log_level=log_level)
 
 
 

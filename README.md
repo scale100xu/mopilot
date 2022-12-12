@@ -164,11 +164,12 @@ output:
 ```
 
 ## print_module_key_test.py code
+
 ```python
 import torch,time
 
 from test.test_model import  TestModel
-from sampler_mopilot import SamplerMopilot
+from mopilot.sampler_mopilot import SamplerMopilot
 import threading
 
 class HttpThread(threading.Thread):
@@ -180,8 +181,8 @@ class HttpThread(threading.Thread):
 
     def run(self) -> None:
         self.threadLock.acquire()
-        self.sampler.http_sampler_mopilot()
-        print(f"test")
+        self.sampler.http_request()
+        self.sampler.run_http_server()
         self.threadLock.release()
 
 

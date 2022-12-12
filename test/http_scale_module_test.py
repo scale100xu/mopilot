@@ -1,11 +1,11 @@
 import torch,time
 
-from test_model import  TestModel
-from mopilot.sampler_mopilot import SamplerMopilot
+from test_model import  TestModel2
+from mopilot.scale_module import ScaleModule
 import threading
 
 class HttpThread(threading.Thread):
-    def __init__(self, sampler:SamplerMopilot):
+    def __init__(self, sampler:ScaleModule):
         threading.Thread.__init__(self)
         self.sampler = sampler
         self.threadLock = threading.Lock()
@@ -14,6 +14,7 @@ class HttpThread(threading.Thread):
     def run(self) -> None:
         self.threadLock.acquire()
         self.sampler.http_request()
+        self.sampler.add_http_support()
         self.sampler.run_http_server()
         self.threadLock.release()
 
@@ -21,24 +22,18 @@ class HttpThread(threading.Thread):
 
 if __name__ == "__main__":
 
-    m = TestModel()
+    m = TestModel2()
     m.train(True)
 
-    http_sampler_mopilot = SamplerMopilot(m, "HttpSamplerMopilot")
+    http_sampler_mopilot = ScaleModule(m, "ScaleModuleOut")
     def todo_train():
         # todo your train code
-        # path = "seq.0.Conv2d"
-        # http_sampler_mopilot = SamplerMopilot(m, "HttpSamplerMopilot")
-        # http_sampler_mopilot.add_register_backward_hook(path, http_sampler_mopilot.sampler_hook_grad)
-        # http_sampler_mopilot.add_register_backward_hook(path, http_sampler_mopilot.sampler_hook_forward)
         for i in range(1000):
             print(f"run: {i}")
             x = torch.randn(1, 20, 5, 5)
             y = m(x)
             loss = torch.nn.functional.mse_loss(x.float(), y.float(), reduction="mean")
             loss.backward()
-            # grad_data = http_sampler_mopilot.get_sampler_hook_grad_data(path)
-            # forward_data = http_sampler_mopilot.get_sampler_hook_forward_data(path)
             time.sleep(1)
 
 
@@ -74,4 +69,10 @@ curl -XGET "http://0.0.0.0:8765/stat_module_hook_grad_input?key=seq.0.Conv2d"
 
 # stat sampler grad output
 curl -XGET "http://0.0.0.0:8765/stat_module_hook_grad_output?key=seq.0.Conv2d"
+
+# scale out features using torch.nn.Linear
+curl -XGET "http://0.0.0.0:8765/add_scale_module?key=seq.1.Linear&out_dim=2"
+
+# scale out features using torch.nn.Linear
+curl -XGET "http://0.0.0.0:8765/add_scale_module?key=seq.0.Conv2d&out_dim=18"
 """
